@@ -8,6 +8,7 @@ on:
   pull_request:
 jobs:
   test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Test Container Build
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +30,7 @@ jobs:
         cache: false
         cache-repository: ghcr.io/${{ github.repository }}/cache
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     needs: test
     steps:

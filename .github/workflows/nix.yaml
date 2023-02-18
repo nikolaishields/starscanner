@@ -1,5 +1,4 @@
 name: Nix Flake
-
 on:
   push:
   pull_request:

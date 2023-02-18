@@ -1,0 +1,53 @@
+name: Container Image
+on:
+  workflow_run:
+    workflows: ["Nix Flake"]
+    types:
+      - completed
+  push:
+  pull_request:
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: Test Container Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: docker/metadata-action@v3
+      id: metadata
+      with:
+        images: ghcr.io/${{ github.repository }}
+    - uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: int128/kaniko-action@v1
+      with:
+        push: false
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        cache: false
+        cache-repository: ghcr.io/${{ github.repository }}/cache
+  build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v3
+    - uses: docker/metadata-action@v3
+      id: metadata
+      with:
+        images: ghcr.io/${{ github.repository }}
+    - uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: int128/kaniko-action@v1
+      with:
+        push: false
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        cache: true
+        cache-repository: ghcr.io/${{ github.repository }}/cache

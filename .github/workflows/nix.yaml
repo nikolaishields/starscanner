@@ -4,7 +4,7 @@ on:
   push:
   pull_request:
 jobs:
-  Test:
+  Test Nix Flake:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -14,3 +14,30 @@ jobs:
     - run: nix build
     - run: nix flake check
     - run: nix flake metadata
+  Test Application:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: cachix/install-nix-action@v19
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+    - run: echo 'Test Output: Foo'
+  Test Container Image:
+    steps:
+    - uses: actions/checkout@v3
+    - uses: docker/metadata-action@v3
+      id: metadata
+      with:
+        images: ghcr.io/${{ github.repository }}
+    - uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: int128/kaniko-action@v1
+      with:
+        push: fales
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        cache: false
+        cache-repository: ghcr.io/${{ github.repository }}/cache

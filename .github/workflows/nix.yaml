@@ -25,7 +25,6 @@ jobs:
   Test Container Image:
     runs-on: ubuntu-latest
     steps:
-    steps:
     - uses: actions/checkout@v3
     - uses: docker/metadata-action@v3
       id: metadata

@@ -21,7 +21,7 @@ jobs:
     - uses: cachix/install-nix-action@v19
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
-    - run: echo 'Test Output: Foo'
+    - run: nix flake metadata
   Test Container Image:
     runs-on: ubuntu-latest
     steps:
